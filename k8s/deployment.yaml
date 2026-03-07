@@ -41,8 +41,6 @@ spec:
               value: "https://ventureforum.asia/"
             - name: ATMOS_API_URL
               value: "https://apigw.atmos.uz"
-            - name: ATMOS_PROXY
-              value: "socks5://127.0.0.1:1080"
             - name: ATMOS_CONSUMER_KEY
               valueFrom:
                 secretKeyRef:
