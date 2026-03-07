@@ -91,7 +91,7 @@ async def pay(request: Request):
     return RedirectResponse(url=invoice["url"], status_code=302)
 
 
-@app.post("/callback")
+@app.post("/callback.php")
 async def callback(request: Request):
     """
     Atmos to'lovni tasdiqlashdan OLDIN shu endpointga murojaat qiladi.
