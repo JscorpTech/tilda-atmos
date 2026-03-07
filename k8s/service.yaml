@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: tilda-atmos
+  labels:
+    app: tilda-atmos
+    project: ventureforum
+spec:
+  selector:
+    app: tilda-atmos
+  ports:
+    - port: 80
+      targetPort: 8000
+  type: ClusterIP

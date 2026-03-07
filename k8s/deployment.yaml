@@ -1,0 +1,85 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tilda-atmos
+  labels:
+    app: tilda-atmos
+    project: ventureforum
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tilda-atmos
+  template:
+    metadata:
+      labels:
+        app: tilda-atmos
+        project: ventureforum
+    spec:
+      nodeSelector:
+        project: ventureforum
+
+      imagePullSecrets:
+        - name: registry-jscorp
+
+      containers:
+        - name: tilda-atmos
+          image: registry.jscorp.uz/tilda-atmos:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8000
+
+          env:
+            - name: DB_FILE
+              value: /data/database.sqlite
+            - name: LOG_FILE
+              value: /data/post_log.txt
+            - name: DEBUG_MODE
+              value: "false"
+            - name: FINAL_REDIRECT_URL
+              value: "https://ventureforum.asia/"
+            - name: ATMOS_API_URL
+              value: "https://apigw.atmos.uz"
+            - name: ATMOS_PROXY
+              value: "socks5://127.0.0.1:1080"
+            - name: ATMOS_CONSUMER_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: atmos-credentials
+                  key: ATMOS_CONSUMER_KEY
+            - name: ATMOS_CONSUMER_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: atmos-credentials
+                  key: ATMOS_CONSUMER_SECRET
+
+          volumeMounts:
+            - name: data
+              mountPath: /data
+
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8000
+            initialDelaySeconds: 15
+            periodSeconds: 30
+
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: tilda-atmos-data
