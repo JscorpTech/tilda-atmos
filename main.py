@@ -14,7 +14,7 @@ from database import (
     save_order,
     update_order_status,
 )
-from logger import log
+from logger import log, log_error, log_exception
 
 app = FastAPI(title="Tilda Atmos Payment Gateway", docs_url=None, redoc_url=None)
 
@@ -26,6 +26,14 @@ def index():
 
 @app.post("/")
 async def pay(request: Request):
+    try:
+        return await _pay(request)
+    except Exception as exc:
+        log_exception("UNHANDLED ERROR in POST /", exc)
+        return PlainTextResponse("Internal server error", status_code=500)
+
+
+async def _pay(request: Request):
     """
     Tilda bu endpointga buyurtma ma'lumotlarini POST qiladi.
     Invoice yaratib, foydalanuvchini Atmos to'lov sahifasiga yo'naltiradi.
@@ -68,7 +76,7 @@ async def pay(request: Request):
     invoice = create_invoice(token, amount_tiyin, order_id, desc, request_id, success_url)
 
     if not invoice or not invoice.get("url"):
-        log("ERROR", f"Invoice create failed for {order_id}")
+        log_error("ERROR", f"Invoice create failed for {order_id}")
         return PlainTextResponse("Failed to create payment", status_code=500)
 
     conn = get_connection()
@@ -93,6 +101,14 @@ async def pay(request: Request):
 
 @app.post("/callback.php")
 async def callback(request: Request):
+    try:
+        return await _callback(request)
+    except Exception as exc:
+        log_exception("UNHANDLED ERROR in /callback.php", exc)
+        return JSONResponse({"status": 0, "message": "Internal error"})
+
+
+async def _callback(request: Request):
     """
     Atmos to'lovni tasdiqlashdan OLDIN shu endpointga murojaat qiladi.
     status:1 qaytarilgandagina Atmos to'lovni yakunlaydi.

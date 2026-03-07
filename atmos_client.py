@@ -7,7 +7,7 @@ import httpx
 
 from config import ATMOS_API_URL, ATMOS_CONSUMER_KEY, ATMOS_CONSUMER_SECRET, ATMOS_PROXY, ATMOS_STORE_ID
 from database import get_connection, get_cached_token, cache_token, get_cached_rate, cache_rates
-from logger import log
+from logger import log, log_exception
 
 FALLBACK_RATES = {
     "UZS": 25.5,
@@ -39,7 +39,7 @@ def get_token() -> Optional[str]:
                 },
             )
     except Exception as e:
-        log("Atmos Token", f"FAIL {e}")
+        log_exception("Atmos Token FAIL", e)
         return None
 
     if resp.status_code != 200:
@@ -78,7 +78,7 @@ def create_invoice(
                 headers={"Authorization": f"Bearer {token}"},
             )
     except Exception as e:
-        log("Invoice Error", str(e))
+        log_exception("Invoice Error", e)
         return None
 
     if resp.status_code != 200:
@@ -100,7 +100,7 @@ def check_invoice(token: str, payment_id: int) -> Optional[dict]:
             )
         return resp.json()
     except Exception as e:
-        log("Invoice Check Error", str(e))
+        log_exception("Invoice Check Error", e)
         return None
 
 
@@ -144,7 +144,7 @@ def notify_tilda(notification_url: str, order_id: str, amount, payment_id: int =
         log("Tilda Notify", f"order={order_id} resp={resp.text.strip()!r} http={resp.status_code}")
         return resp.status_code == 200 and resp.text.strip() == "OK"
     except Exception as e:
-        log("Tilda Notify", f"order={order_id} ERROR {e}")
+        log_exception("Tilda Notify ERROR", e)
         return False
 
 
