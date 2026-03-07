@@ -1,0 +1,34 @@
+name: Docker Build & Push
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Extract tag
+        id: meta
+        run: echo "TAG=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+      - name: Login to registry
+        uses: docker/login-action@v3
+        with:
+          registry: registry.jscorp.uz
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |
+            registry.jscorp.uz/tilda-atmos:${{ steps.meta.outputs.TAG }}
+            registry.jscorp.uz/tilda-atmos:latest
