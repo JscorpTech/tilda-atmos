@@ -7,7 +7,6 @@ ATMOS_CONSUMER_KEY    = os.environ.get("ATMOS_CONSUMER_KEY",    "***REMOVED***")
 ATMOS_CONSUMER_SECRET = os.environ.get("ATMOS_CONSUMER_SECRET", "***REMOVED***")
 ATMOS_STORE_ID        = int(os.environ.get("ATMOS_STORE_ID",    "100265"))
 ATMOS_API_URL         = os.environ.get("ATMOS_API_URL",         "https://apigw.atmos.uz")
-ATMOS_PROXY           = os.environ.get("ATMOS_PROXY",           "socks5://127.0.0.1:1080")
 
 # True bo'lsa har doim 1000 UZS (100000 tiyin) lik transaction yaratadi
 DEBUG_MODE = os.environ.get("DEBUG_MODE", "true").lower() == "true"

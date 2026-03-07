@@ -5,7 +5,7 @@ from urllib.parse import urlencode
 
 import httpx
 
-from config import ATMOS_API_URL, ATMOS_CONSUMER_KEY, ATMOS_CONSUMER_SECRET, ATMOS_PROXY, ATMOS_STORE_ID
+from config import ATMOS_API_URL, ATMOS_CONSUMER_KEY, ATMOS_CONSUMER_SECRET, ATMOS_STORE_ID
 from database import get_connection, get_cached_token, cache_token, get_cached_rate, cache_rates
 from logger import log, log_exception
 
@@ -18,7 +18,7 @@ FALLBACK_RATES = {
 
 
 def _atmos_client() -> httpx.Client:
-    return httpx.Client(proxy=ATMOS_PROXY, timeout=30)
+    return httpx.Client(timeout=30)
 
 
 def get_token() -> Optional[str]:
