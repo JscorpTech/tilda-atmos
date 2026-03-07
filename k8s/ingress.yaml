@@ -2,6 +2,7 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: tilda-atmos
+  namespace: ventureforum
   labels:
     app: tilda-atmos
     project: ventureforum

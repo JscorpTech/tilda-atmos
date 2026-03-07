@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: tilda-atmos
+  namespace: ventureforum
   labels:
     app: tilda-atmos
     project: ventureforum
