@@ -1,0 +1,19 @@
+import os
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# Atmos credentials
+ATMOS_CONSUMER_KEY    = "***REMOVED***"
+ATMOS_CONSUMER_SECRET = "***REMOVED***"
+ATMOS_STORE_ID        = 100265
+ATMOS_API_URL         = "https://apigw.atmos.uz"
+ATMOS_PROXY           = "socks5://127.0.0.1:1080"
+
+# True bo'lsa har doim 1000 UZS (100000 tiyin) lik transaction yaratadi
+DEBUG_MODE = True
+
+# Muvaffaqiyatli to'lovdan keyin foydalanuvchi shu sahifaga yo'naltiriladi
+FINAL_REDIRECT_URL = "https://ventureforum.asia/"
+
+DB_FILE  = os.path.join(BASE_DIR, "database.sqlite")
+LOG_FILE = os.path.join(BASE_DIR, "post_log.txt")
