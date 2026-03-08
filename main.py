@@ -5,7 +5,7 @@ from datetime import datetime
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse, PlainTextResponse, RedirectResponse
 
-from atmos_client import convert_from_kzt, create_invoice, get_token, notify_tilda
+from atmos_client import convert_from_usd, create_invoice, get_token, notify_tilda
 from config import DEBUG_MODE, FINAL_REDIRECT_URL
 from database import (
     get_connection,
@@ -62,8 +62,8 @@ async def _pay(request: Request):
     if not token:
         return PlainTextResponse("Failed to get payment token", status_code=500)
 
-    # Amount doimo KZT da keladi → UZS ga konvertatsiya → tiyin
-    amount_uzs   = convert_from_kzt(amount, "UZS")
+    # Amount USD da keladi → UZS ga konvertatsiya → tiyin
+    amount_uzs   = convert_from_usd(amount, "UZS")
     amount_tiyin = int(amount_uzs * 100)
 
     if DEBUG_MODE:

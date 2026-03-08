@@ -10,10 +10,10 @@ from database import get_connection, get_cached_token, cache_token, get_cached_r
 from logger import log, log_exception
 
 FALLBACK_RATES = {
-    "UZS": 25.5,
-    "USD": 0.002,
-    "EUR": 0.0018,
-    "RUB": 0.18,
+    "UZS": 12900.0,   # 1 USD ≈ 12900 UZS
+    "KZT": 500.0,     # 1 USD ≈ 500 KZT
+    "EUR": 0.92,      # 1 USD ≈ 0.92 EUR
+    "RUB": 90.0,      # 1 USD ≈ 90 RUB
 }
 
 
@@ -174,17 +174,17 @@ def get_exchange_rate(from_currency: str, to_currency: str) -> Optional[float]:
     return float(rates[to_currency])
 
 
-def convert_from_kzt(amount_kzt: float, to_currency: str) -> float:
-    """Tilda dan kelgan KZT summani berilgan valyutaga konvertatsiya qiladi."""
+def convert_from_usd(amount_usd: float, to_currency: str) -> float:
+    """Tilda dan kelgan USD summani berilgan valyutaga konvertatsiya qiladi."""
     to_currency = to_currency.upper().strip()
-    if to_currency == "KZT":
-        return amount_kzt
+    if to_currency == "USD":
+        return amount_usd
 
-    rate = get_exchange_rate("KZT", to_currency)
+    rate = get_exchange_rate("USD", to_currency)
     if rate is None:
         log("Currency", f"fallback rate for {to_currency}")
         rate = FALLBACK_RATES.get(to_currency, 1.0)
 
-    converted = round(amount_kzt * rate, 2)
-    log("Currency", f"{amount_kzt} KZT → {converted} {to_currency} (rate={rate})")
+    converted = round(amount_usd * rate, 2)
+    log("Currency", f"{amount_usd} USD → {converted} {to_currency} (rate={rate})")
     return converted
