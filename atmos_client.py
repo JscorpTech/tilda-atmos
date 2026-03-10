@@ -174,17 +174,17 @@ def get_exchange_rate(from_currency: str, to_currency: str) -> Optional[float]:
     return float(rates[to_currency])
 
 
-def convert_from_usd(amount_usd: float, to_currency: str) -> float:
-    """Tilda dan kelgan USD summani berilgan valyutaga konvertatsiya qiladi."""
+def convert_from_kzt(amount_kzt: float, to_currency: str) -> float:
+    """Tilda dan kelgan KZT summani berilgan valyutaga konvertatsiya qiladi."""
     to_currency = to_currency.upper().strip()
-    if to_currency == "USD":
-        return amount_usd
+    if to_currency == "KZT":
+        return amount_kzt
 
-    rate = get_exchange_rate("USD", to_currency)
+    rate = get_exchange_rate("KZT", to_currency)
     if rate is None:
         log("Currency", f"fallback rate for {to_currency}")
         rate = FALLBACK_RATES.get(to_currency, 1.0)
 
-    converted = round(amount_usd * rate, 2)
-    log("Currency", f"{amount_usd} USD → {converted} {to_currency} (rate={rate})")
+    converted = round(amount_kzt * rate, 2)
+    log("Currency", f"{amount_kzt} KZT → {converted} {to_currency} (rate={rate})")
     return converted
