@@ -145,7 +145,7 @@ async def _callback(request: Request):
     notified = notify_tilda(
         order["notification_url"],
         order["order_id"],
-        order["amount_original"],
+        order["amount_uzs"],
         int(order["payment_id"] or 0),
     )
     update_order_status(conn, order["order_id"], "paid", notified)
