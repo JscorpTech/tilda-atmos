@@ -25,7 +25,7 @@ spec:
 
       containers:
         - name: tilda-atmos
-          image: registry.jscorp.uz/tilda-atmos:v1.0.6
+          image: registry.jscorp.uz/tilda-atmos:1.0.6
           imagePullPolicy: Always
           ports:
             - containerPort: 8000
