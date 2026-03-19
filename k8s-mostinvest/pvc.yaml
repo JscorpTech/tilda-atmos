@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: tilda-atmos-data
+  namespace: mostinvest
+  labels:
+    app: tilda-atmos
+    project: mostinvest
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi

@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: tilda-atmos
+  namespace: mostinvest
+  labels:
+    app: tilda-atmos
+    project: mostinvest
+spec:
+  selector:
+    app: tilda-atmos
+  ports:
+    - port: 80
+      targetPort: 8000
+  type: ClusterIP
