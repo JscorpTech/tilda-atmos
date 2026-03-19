@@ -1,0 +1,23 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: tilda-atmos
+  namespace: mostinvest
+  labels:
+    app: tilda-atmos
+    project: mostinvest
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "500m"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: mostinvest.jscorp.uz
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: tilda-atmos
+                port:
+                  number: 80

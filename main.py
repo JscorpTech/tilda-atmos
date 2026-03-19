@@ -40,13 +40,13 @@ async def _pay(request: Request):
     """
     form = await request.form()
 
-    amount_raw   = str(form.get("amount", "") or "0")
-    order_id     = str(form.get("order_id", "") or "")
+    amount_raw = str(form.get("amount", "") or "0")
+    order_id = str(form.get("order_id", "") or "")
     notification = str(form.get("notification", "") or "")
-    desc         = str(form.get("desc", "") or "")
-    products     = str(form.get("products", "[]") or "[]")
-    currency     = str(form.get("currency", "UZS") or "UZS").upper().strip()
-    tilda_hash   = str(form.get("hash", "") or "")
+    desc = str(form.get("desc", "") or "")
+    products = str(form.get("products", "[]") or "[]")
+    currency = str(form.get("currency", "UZS") or "UZS").upper().strip()
+    tilda_hash = str(form.get("hash", "") or "")
 
     try:
         amount = float(amount_raw)
@@ -63,43 +63,48 @@ async def _pay(request: Request):
         return PlainTextResponse("Failed to get payment token", status_code=500)
 
     # Amount doimo KZT da keladi → UZS ga konvertatsiya → tiyin
-    amount_uzs   = convert_from_kzt(amount, "UZS")
+    amount_uzs = convert_from_kzt(amount, "UZS")
     amount_tiyin = int(amount_uzs * 100)
 
     if DEBUG_MODE:
         amount_tiyin = 100000  # 1000 UZS
 
-    base_url    = str(request.base_url).rstrip("/")
+    base_url = str(request.base_url).rstrip("/")
     success_url = FINAL_REDIRECT_URL
-    request_id  = "tilda_" + order_id.replace(":", "_") + "_" + str(int(time.time()))
+    request_id = "tilda_" + order_id.replace(":", "_") + "_" + str(int(time.time()))
 
-    invoice = create_invoice(token, amount_tiyin, order_id, desc, request_id, success_url)
+    invoice = create_invoice(
+        token, amount_tiyin, order_id, desc, request_id, success_url
+    )
 
     if not invoice or not invoice.get("url"):
         log_error("ERROR", f"Invoice create failed for {order_id}")
         return PlainTextResponse("Failed to create payment", status_code=500)
 
     conn = get_connection()
-    save_order(conn, {
-        "order_id":         order_id,
-        "notification_url": notification,
-        "amount_original":  amount_raw,
-        "currency":         currency,
-        "amount_uzs":       amount_uzs,
-        "amount_tiyin":     amount_tiyin,
-        "payment_id":       invoice.get("payment_id"),
-        "atmos_token":      invoice.get("token"),
-        "description":      desc,
-        "tilda_hash":       tilda_hash,
-        "status":           "pending",
-        "created_at":       datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-    })
+    save_order(
+        conn,
+        {
+            "order_id": order_id,
+            "notification_url": notification,
+            "amount_original": amount_raw,
+            "currency": currency,
+            "amount_uzs": amount_uzs,
+            "amount_tiyin": amount_tiyin,
+            "payment_id": invoice.get("payment_id"),
+            "atmos_token": invoice.get("token"),
+            "description": desc,
+            "tilda_hash": tilda_hash,
+            "status": "pending",
+            "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        },
+    )
 
     log("Redirect", order_id)
     return RedirectResponse(url=invoice["url"], status_code=302)
 
 
-@app.post("/callback.php")
+@app.post("/webhook")
 async def callback(request: Request):
     try:
         return await _callback(request)
@@ -120,12 +125,12 @@ async def _callback(request: Request):
         return JSONResponse({"status": 0, "message": "Invalid JSON"})
 
     transaction_id = data.get("transaction_id")
-    account        = data.get("account")
-    invoice_id     = data.get("invoice")
+    account = data.get("account")
+    invoice_id = data.get("invoice")
 
     log("Callback", f"account={account} tx={transaction_id}")
 
-    conn  = get_connection()
+    conn = get_connection()
     order = None
 
     if account:
