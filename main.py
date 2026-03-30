@@ -104,7 +104,7 @@ async def _pay(request: Request):
     return RedirectResponse(url=invoice["url"], status_code=302)
 
 
-@app.post("/webhook")
+@app.post("/callback.php")
 async def callback(request: Request):
     try:
         return await _callback(request)
