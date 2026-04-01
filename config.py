@@ -14,5 +14,9 @@ DEBUG_MODE = os.environ.get("DEBUG_MODE", "true").lower() == "true"
 # Muvaffaqiyatli to'lovdan keyin foydalanuvchi shu sahifaga yo'naltiriladi
 FINAL_REDIRECT_URL = os.environ.get("FINAL_REDIRECT_URL", "https://ventureforum.asia/")
 
+# Telegram bot — Tilda notify muvaffaqiyatsiz bo'lganda xabar yuborish uchun
+TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "8737138088:AAETbG92NB2aapW9feoAzp21rhC5CGLBLg8")
+TELEGRAM_CHAT_ID   = os.environ.get("TELEGRAM_CHAT_ID",   "@madyageeks")
+
 DB_FILE  = os.environ.get("DB_FILE",  os.path.join(BASE_DIR, "database.sqlite"))
 LOG_FILE = os.environ.get("LOG_FILE", os.path.join(BASE_DIR, "post_log.txt"))
