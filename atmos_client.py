@@ -5,7 +5,7 @@ from urllib.parse import urlencode
 
 import httpx
 
-from config import ATMOS_API_URL, ATMOS_CONSUMER_KEY, ATMOS_CONSUMER_SECRET, ATMOS_STORE_ID
+from config import ATMOS_API_URL, ATMOS_CONSUMER_KEY, ATMOS_CONSUMER_SECRET, ATMOS_STORE_ID, TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID
 from database import get_connection, get_cached_token, cache_token, get_cached_rate, cache_rates
 from logger import log, log_exception
 
@@ -145,6 +145,32 @@ def notify_tilda(notification_url: str, order_id: str, amount, payment_id: int =
         return resp.status_code == 200 and resp.text.strip() == "OK"
     except Exception as e:
         log_exception("Tilda Notify ERROR", e)
+        return False
+
+
+def notify_telegram(order_id: str, amount, payment_id: int, notification_url: str) -> bool:
+    """Tilda notify muvaffaqiyatsiz bo'lganda Telegram orqali ogoxlantirish yuboradi."""
+    text = (
+        f"⚠️ *Tilda notify MUVAFFAQIYATSIZ*\n\n"
+        f"Order ID: `{order_id}`\n"
+        f"Summa: `{amount}`\n"
+        f"Payment ID: `{payment_id}`\n"
+        f"Notification URL: {notification_url}\n\n"
+        f"To'lov Atmos tomonidan tasdiqlandi, lekin Tildaga xabar yetmadi."
+    )
+    url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
+    try:
+        with httpx.Client(timeout=15) as client:
+            resp = client.post(url, json={
+                "chat_id": TELEGRAM_CHAT_ID,
+                "text": text,
+                "parse_mode": "Markdown",
+            })
+        ok = resp.status_code == 200 and resp.json().get("ok")
+        log("Telegram Notify", f"order={order_id} ok={ok}")
+        return bool(ok)
+    except Exception as e:
+        log_exception("Telegram Notify ERROR", e)
         return False
 
 

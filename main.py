@@ -5,7 +5,7 @@ from datetime import datetime
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse, PlainTextResponse, RedirectResponse
 
-from atmos_client import convert_from_kzt, create_invoice, get_token, notify_tilda
+from atmos_client import convert_from_kzt, create_invoice, get_token, notify_tilda, notify_telegram
 from config import DEBUG_MODE, FINAL_REDIRECT_URL
 from database import (
     get_connection,
@@ -113,6 +113,15 @@ async def callback(request: Request):
         return JSONResponse({"status": 0, "message": "Internal error"})
 
 
+@app.post("/webhook")
+async def webhook(request: Request):
+    try:
+        return await _callback(request)
+    except Exception as exc:
+        log_exception("UNHANDLED ERROR in /webhook", exc)
+        return JSONResponse({"status": 0, "message": "Internal error"})
+
+
 async def _callback(request: Request):
     """
     Atmos to'lovni tasdiqlashdan OLDIN shu endpointga murojaat qiladi.
@@ -147,13 +156,22 @@ async def _callback(request: Request):
     if order["status"] == "paid":
         return JSONResponse({"status": 1, "message": "OK"})
 
+    payment_id = int(order["payment_id"] or 0)
     notified = notify_tilda(
         order["notification_url"],
         order["order_id"],
         order["amount_original"],
-        int(order["payment_id"] or 0),
+        payment_id,
     )
     update_order_status(conn, order["order_id"], "paid", notified)
     log("Payment OK", f"{order['order_id']} tilda={'OK' if notified else 'FAIL'}")
+
+    if not notified:
+        notify_telegram(
+            order["order_id"],
+            order["amount_original"],
+            payment_id,
+            order["notification_url"],
+        )
 
     return JSONResponse({"status": 1, "message": "OK"})
