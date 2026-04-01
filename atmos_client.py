@@ -126,6 +126,8 @@ def compute_tilda_hash(fields: dict) -> str:
 
 
 def notify_tilda(notification_url: str, order_id: str, amount, payment_id: int = 0) -> bool:
+    import time as _time
+
     fields = {
         "order_id": order_id,
         "amount":   _php_str(amount),
@@ -134,18 +136,24 @@ def notify_tilda(notification_url: str, order_id: str, amount, payment_id: int =
     }
     fields["hash"] = compute_tilda_hash(fields)
 
-    try:
-        with httpx.Client(timeout=30) as client:
-            resp = client.post(
-                notification_url,
-                content=urlencode(fields),
-                headers={"Content-Type": "application/x-www-form-urlencoded"},
-            )
-        log("Tilda Notify", f"order={order_id} resp={resp.text.strip()!r} http={resp.status_code}")
-        return resp.status_code == 200 and resp.text.strip() == "OK"
-    except Exception as e:
-        log_exception("Tilda Notify ERROR", e)
-        return False
+    for attempt in range(1, 4):  # 3 urinish (1 asosiy + 2 retry)
+        try:
+            with httpx.Client(timeout=20) as client:
+                resp = client.post(
+                    notification_url,
+                    content=urlencode(fields),
+                    headers={"Content-Type": "application/x-www-form-urlencoded"},
+                )
+            log("Tilda Notify", f"order={order_id} attempt={attempt} resp={resp.text.strip()!r} http={resp.status_code}")
+            if resp.status_code == 200 and resp.text.strip() == "OK":
+                return True
+        except Exception as e:
+            log_exception(f"Tilda Notify ERROR attempt={attempt}", e)
+
+        if attempt < 3:
+            _time.sleep(20)
+
+    return False
 
 
 def notify_telegram(order_id: str, amount, payment_id: int, notification_url: str) -> bool:
