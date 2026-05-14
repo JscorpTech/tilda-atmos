@@ -5,3 +5,5 @@ __pycache__/
 database.sqlite
 post_log.txt
 orders/
+k8s/secret.yaml
+k8s-mostinvest/secret.yaml
